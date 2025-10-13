@@ -1,0 +1,74 @@
+org: mylocalhome
+app: meet-agent-ai-node-back
+service: meet-agent-ia-node-back
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  deploymentBucket:
+    name: meetai-deployment-${opt:stage, 'dev'}
+  stage: ${opt:stage, 'dev'}
+  httpApi:
+    cors:
+      allowedOrigins:
+        - https://master.647838cc.amplifyapp.com
+        - http://localhost:3000
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - Access-Control-Allow-Origin
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+      allowCredentials: true
+    maxAge: 6000
+
+  environment:
+    USER_TABLE: ${self:service}-${sls:stage}-user
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchWriteItem
+            - s3:*
+            - ssm:PutParameter
+            - ssm:GetParameter
+            - ssm:DeleteParameter
+          Resource:
+            - Fn::GetAtt: [UsersTable, Arn]
+            - "*"
+
+functions:
+  api:
+    handler: handler.handler
+    events:
+      - httpApi: "*"
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+        TableName: ${self:provider.environment.USER_TABLE}
+plugins:
+  - serverless-offline
