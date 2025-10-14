@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { existUserByEmail } from './utils/userByEmail';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
@@ -32,6 +33,25 @@ export const handler = async (
   const validated = userSchema.parse(body);
 
   const { name, email, password } = body;
+
+  const existUser = await existUserByEmail(email);
+  console.log('existUser', existUser);
+
+  if (typeof existUser === null) {
+   return {
+    statusCode: 500,
+    body: JSON.stringify({ message: 'Failed verify email' }),
+   };
+  }
+
+  if (!existUser) {
+   return {
+    statusCode: 400,
+    body: JSON.stringify({
+     message: 'the user alrready exist',
+    }),
+   };
+  }
 
   let bcryptPassword = bcrypt.hashSync(password, Number(ROUNDS));
 
