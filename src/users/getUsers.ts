@@ -15,9 +15,21 @@ export const handler = async (
 
   const result = await docClient.send(command);
 
+  if (result.Items?.length === 0) {
+   return {
+    statusCode: 200,
+    body: JSON.stringify(result.Items || []),
+   };
+  }
+
+  const users = result.Items?.map(user => {
+   delete user.password;
+   return user;
+  });
+
   return {
    statusCode: 200,
-   body: JSON.stringify(result.Items || []),
+   body: JSON.stringify(users),
   };
  } catch (error) {
   console.log('error: ', error);

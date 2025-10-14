@@ -1,10 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
- DynamoDBDocumentClient,
- GetCommand,
- ScanCommand,
-} from '@aws-sdk/lib-dynamodb';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -17,9 +12,17 @@ export const getUserId = async (id: string) => {
    id: id,
   },
  });
+
  try {
   const result = await docClient.send(command);
   console.log('result: ', result);
+  const user = result.Item;
+
+  if (!user) {
+   return null;
+  }
+
+  delete user.password;
   return result.Item;
  } catch (error) {
   console.log('error: ', error);
