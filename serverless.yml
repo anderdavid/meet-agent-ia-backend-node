@@ -110,6 +110,52 @@ functions:
       - http:
           path: /users/login
           method: post
+
+  getMeets:
+    handler: src/meets/getMeets.handler
+    events:
+      - http:
+          path: /meets
+          method: get
+          authorizer:
+            name: verifyToken
+            type: TOKEN
+  getMeet:
+    handler: src/meets/getMeet.handler
+    events:
+      - http:
+          path: /meets/{id}
+          method: get
+          authorizer:
+            name: verifyToken
+            type: TOKEN
+
+  CreateMeet:
+    handler: src/meets/createMeet.handler
+    events:
+      - http:
+          path: /meet
+          method: post
+          authorizer:
+            name: verifyToken
+            type: TOKEN
+
+  UpdateMeet:
+    handler: src/meets/updateMeet.handler
+    events:
+      - http:
+          path: /meets/{id}
+          method: put
+          authorizer:
+            name: verifyToken
+            type: TOKEN
+
+  DeleteMeet:
+    handler: src/meets/deleteMeet.handler
+    events:
+      - http:
+          path: /meets/{id}
+          method: delete
           authorizer:
             name: verifyToken
             type: TOKEN
