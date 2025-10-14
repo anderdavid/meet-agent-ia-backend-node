@@ -11,7 +11,8 @@
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.10",
     "serverless-http": "^3.2.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^4.1.12"
   },
   "scripts": {
     "devStart": "nodemon --exec serverless offline start --httpPort 8002"
