@@ -21,9 +21,10 @@ interface User {
 }
 
 interface JwtPayload {
- _id: string;
+ id: string;
  name: string;
  email: string;
+ role: string;
 }
 
 const signToken = (payload: JwtPayload) => {
@@ -68,7 +69,12 @@ export const handler = async (
  delete user.createdAt;
  delete user.updatedAt;
 
- const token = signToken({ _id: user.id, name: user.name, email: user.email });
+ const token = signToken({
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+ });
 
  return {
   statusCode: 200,
