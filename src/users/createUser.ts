@@ -2,6 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { existUserByEmail } from './utils/userByEmail';
+import { ROLE_ADMIN, ROLE_USER } from '../utils/constants';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
@@ -14,6 +15,7 @@ interface User {
  id: string;
  name: string;
  email: string;
+ role: string;
  password: string;
  createdAt: number;
  updateAt: number;
@@ -25,6 +27,14 @@ const userSchema = z.object({
  password: z.string().min(8, 'Password es obligatorio'),
 });
 
+const validateRole = (role: String) => {
+ if (role === ROLE_ADMIN || role === ROLE_USER) {
+  return true;
+ } else {
+  return false;
+ }
+};
+
 export const handler = async (
  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -32,10 +42,21 @@ export const handler = async (
   const body = JSON.parse(event.body || '{}');
   const validated = userSchema.parse(body);
 
-  const { name, email, password } = body;
+  const { name, email, password, role } = body;
 
   const existUser = await existUserByEmail(email);
   console.log('existUser', existUser);
+
+  const mRole = validateRole(role);
+
+  if (!mRole) {
+   return {
+    statusCode: 400,
+    body: JSON.stringify({
+     message: 'the role is not valid',
+    }),
+   };
+  }
 
   if (typeof existUser === null) {
    return {
@@ -59,6 +80,7 @@ export const handler = async (
    id: uuidv4(),
    name,
    email,
+   role,
    password: bcryptPassword,
    createdAt: Date.now(),
    updateAt: Date.now(),

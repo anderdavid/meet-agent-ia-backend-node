@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { getUserId } from './utils/getUserId';
 import { getUserByEmail } from './utils/userByEmail';
+import { ROLE_ADMIN, ROLE_USER } from '../utils/constants';
 import { z } from 'zod';
 
 const client = new DynamoDBClient({});
@@ -12,6 +13,7 @@ interface User {
  id: string;
  name: string;
  email: string;
+ role: string;
  password: string;
  createdAt: number;
  updateAt: number;
@@ -22,6 +24,14 @@ const userSchema = z.object({
  email: z.string().email('Debe ser un email válido'),
 });
 
+const validateRole = (role: String) => {
+ if (role === ROLE_ADMIN || role === ROLE_USER) {
+  return true;
+ } else {
+  return false;
+ }
+};
+
 export const handler = async (
  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -31,7 +41,18 @@ export const handler = async (
 
   const body = JSON.parse(event.body || '{}');
   const validated = userSchema.parse(body);
-  const { name, email } = body;
+  const { name, email, role } = body;
+
+  const mRole = validateRole(role);
+
+  if (!mRole) {
+   return {
+    statusCode: 400,
+    body: JSON.stringify({
+     message: 'the role is not valid',
+    }),
+   };
+  }
 
   const usersWithThisEmail = await getUserByEmail(email);
   console.log('usersWithThisEmail', usersWithThisEmail);
@@ -60,6 +81,7 @@ export const handler = async (
    id: user.id,
    name,
    email,
+   role,
    password: user.password,
    createdAt: user.createdAt,
    updateAt: Date.now(),
