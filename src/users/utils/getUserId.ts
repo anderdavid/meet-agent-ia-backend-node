@@ -22,7 +22,7 @@ export const getUserId = async (id: string) => {
    return null;
   }
 
-  delete user.password;
+  //delete user.password;
   return result.Item;
  } catch (error) {
   console.log('error: ', error);

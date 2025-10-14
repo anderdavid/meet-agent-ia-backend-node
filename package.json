@@ -7,7 +7,7 @@
     "@aws-sdk/lib-dynamodb": "^3.908.0",
     "aws-sdk": "^2.1692.0",
     "bcryptjs": "^3.0.2",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.6.1",
     "express-validator": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.10",
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.119",
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.10.5",
     "@types/uuid": "^10.0.0",
     "esbuild": "^0.19.11",

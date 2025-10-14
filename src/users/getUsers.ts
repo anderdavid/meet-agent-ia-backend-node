@@ -23,7 +23,7 @@ export const handler = async (
   }
 
   const users = result.Items?.map(user => {
-   delete user.password;
+   //delete user.password;
    return user;
   });
 

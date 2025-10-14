@@ -10,7 +10,7 @@ provider:
  deploymentBucket:
   name: meetai-deployment-${opt:stage, 'dev'}
  stage: ${opt:stage, 'dev'}
- httpApi:
+ http:
   cors:
    allowedOrigins:
     - https://master.647838cc.amplifyapp.com
@@ -28,6 +28,7 @@ provider:
 
  environment:
   USERS_TABLE: ${self:service}-${sls:stage}-user
+  JWT_SECRET: ${env:JWT_SECRET}
 
  iam:
   role:
@@ -50,39 +51,68 @@ provider:
        - '*'
 
 functions:
+  verifyToken: 
+    handler: src/users/verifyToken.handler
+
   getUsers:
     handler: src/users/getUsers.handler
     events:
-      - httpApi:
+      - http:
           path: /users
           method: get
+          authorizer:
+            name: verifyToken
+            type: TOKEN
 
   getUserId:
     handler: src/users/getUser.handler
     events:
-      - httpApi:
+      - http:
           path: /users/{id}
           method: get
+          authorizer:
+            name: verifyToken
+            type: TOKEN
 
   createUser:
     handler: src/users/createUser.handler
     events:
-      - httpApi:
+      - http:
           path: /users
           method: post
+          authorizer:
+            name: verifyToken
+            type: TOKEN
+
   UpdateUser:
     handler: src/users/updateUser.handler
     events:
-      - httpApi:
+      - http:
           path: /users/{id}
           method: put
+          authorizer:
+            name: verifyToken
+            type: TOKEN
 
   DeleteUser:
     handler: src/users/deleteUser.handler
     events:
-      - httpApi:
+      - http:
           path: /users/{id}
           method: delete
+          authorizer:
+            name: verifyToken
+            type: TOKEN
+
+  Login:
+    handler: src/users/login.handler
+    events:
+      - http:
+          path: /users/login
+          method: post
+          authorizer:
+            name: verifyToken
+            type: TOKEN
 
 resources:
  Resources:
@@ -100,6 +130,8 @@ resources:
      WriteCapacityUnits: 1
 
     TableName: ${self:provider.environment.USERS_TABLE}
+
+useDotenv: true
 plugins:
  - serverless-offline
 
