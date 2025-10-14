@@ -84,6 +84,13 @@ functions:
           path: /users/{id}
           method: delete
 
+  Login:
+    handler: src/users/login.handler
+    events:
+      - httpApi:
+          path: /users/login
+          method: post
+
 resources:
  Resources:
   UsersTable:
