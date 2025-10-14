@@ -28,6 +28,7 @@ provider:
 
  environment:
   USERS_TABLE: ${self:service}-${sls:stage}-user
+  JWT_SECRET: ${env:JWT_SECRET}
 
  iam:
   role:
@@ -107,6 +108,8 @@ resources:
      WriteCapacityUnits: 1
 
     TableName: ${self:provider.environment.USERS_TABLE}
+
+useDotenv: true
 plugins:
  - serverless-offline
 

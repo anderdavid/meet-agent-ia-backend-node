@@ -5,6 +5,7 @@ import { getUserByEmail } from './utils/userByEmail';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -19,6 +20,25 @@ interface User {
  password: string;
 }
 
+interface JwtPayload {
+ _id: string;
+ name: string;
+ email: string;
+}
+
+const signToken = (payload: JwtPayload) => {
+ const secret = process.env.JWT_SECRET;
+ console.log('secret', secret);
+
+ if (!secret) {
+  throw new Error('JWT_SECRET is not defined');
+ }
+ const secretKey = Buffer.from(secret);
+ return jwt.sign(payload, secretKey, {
+  expiresIn: '1d',
+ });
+};
+
 export const handler = async (
  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -28,8 +48,6 @@ export const handler = async (
  const { email, password } = body;
 
  const users = await getUserByEmail(email);
- console.log('users', users);
-
  if (!users || users.length === 0) {
   return {
    statusCode: 401,
@@ -45,8 +63,18 @@ export const handler = async (
   };
  }
 
+ console.log('user', user);
+ delete user.password;
+ delete user.createdAt;
+ delete user.updatedAt;
+
+ const token = signToken({ _id: user.id, name: user.name, email: user.email });
+
  return {
   statusCode: 200,
-  body: JSON.stringify('login exitoso'),
+  body: JSON.stringify({
+   user,
+   token,
+  }),
  };
 };
