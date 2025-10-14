@@ -3,9 +3,11 @@ import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
+const ROUNDS = 10;
 
 interface User {
  id: string;
@@ -17,7 +19,7 @@ interface User {
 }
 
 const userSchema = z.object({
- name: z.string().min(6, 'El nombre es obligatorio'),
+ name: z.string().min(6, 'El nombre es obligatorio, minimo 6 caracteres'),
  email: z.string().email('Debe ser un email válido'),
  password: z.string().min(8, 'Password es obligatorio'),
 });
@@ -31,11 +33,13 @@ export const handler = async (
 
   const { name, email, password } = body;
 
+  let bcryptPassword = bcrypt.hashSync(password, Number(ROUNDS));
+
   const user: User = {
    id: uuidv4(),
    name,
    email,
-   password,
+   password: bcryptPassword,
    createdAt: Date.now(),
    updateAt: Date.now(),
   };
