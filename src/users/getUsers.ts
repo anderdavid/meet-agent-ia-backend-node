@@ -9,6 +9,7 @@ export const handler = async (
  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
  try {
+  console.log('table', process.env.USERS_TABLE);
   const command = new ScanCommand({
    TableName: process.env.USERS_TABLE,
   });
@@ -23,7 +24,7 @@ export const handler = async (
   }
 
   const users = result.Items?.map(user => {
-   //delete user.password;
+   delete user.password;
    return user;
   });
 

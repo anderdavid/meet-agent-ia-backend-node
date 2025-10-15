@@ -28,6 +28,7 @@ provider:
 
  environment:
   USERS_TABLE: ${self:service}-${sls:stage}-user
+  MEETS_TABLE: ${self:service}-${sls:stage}-meet
   JWT_SECRET: ${env:JWT_SECRET}
 
  iam:
@@ -47,8 +48,9 @@ provider:
        - ssm:GetParameter
        - ssm:DeleteParameter
       Resource:
-       - Fn::GetAtt: [UsersTable, Arn]
-       - '*'
+        - Fn::GetAtt: [UsersTable, Arn]
+        - Fn::GetAtt: [MeetsTable, Arn]
+        - '*'
 
 functions:
   verifyToken: 
@@ -161,21 +163,37 @@ functions:
             type: TOKEN
 
 resources:
- Resources:
-  UsersTable:
-   Type: AWS::DynamoDB::Table
-   Properties:
-    AttributeDefinitions:
-     - AttributeName: id
-       AttributeType: S
-    KeySchema:
-     - AttributeName: id
-       KeyType: HASH
-    ProvisionedThroughput:
-     ReadCapacityUnits: 1
-     WriteCapacityUnits: 1
+  Resources:
+    UsersTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: '${self:provider.environment.USERS_TABLE}'
+    MeetsTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: '${self:provider.environment.MEETS_TABLE}'
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+       
 
-    TableName: ${self:provider.environment.USERS_TABLE}
+
+  
 
 useDotenv: true
 plugins:

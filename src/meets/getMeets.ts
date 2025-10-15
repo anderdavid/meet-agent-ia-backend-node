@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 const client = new DynamoDBClient({});
@@ -9,9 +9,21 @@ export const handler = async (
  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
  try {
+  const command = new ScanCommand({
+   TableName: process.env.MEETS_TABLE,
+  });
+
+  const result = await docClient.send(command);
+
+  if (result.Items?.length === 0) {
+   return {
+    statusCode: 200,
+    body: JSON.stringify(result.Items || []),
+   };
+  }
   return {
-   statusCode: 201,
-   body: JSON.stringify('getMeets'),
+   statusCode: 200,
+   body: JSON.stringify(result.Items),
   };
  } catch (error) {
   return {
