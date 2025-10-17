@@ -8,6 +8,7 @@ export const handler = async (
  event: APIGatewayTokenAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> => {
  const token = event.authorizationToken?.replace('Bearer ', '');
+ console.log('method arn', event.methodArn);
 
  if (!token || !event.methodArn) throw new Error('Unauthorized');
 

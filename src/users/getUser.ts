@@ -13,17 +13,32 @@ export const handler = async (
   if (!user) {
    return {
     statusCode: 404,
+    headers: {
+     'Access-Control-Allow-Origin': '*',
+     'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+     'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+    },
     body: JSON.stringify({ message: 'User not found' }),
    };
   }
 
   return {
    statusCode: 200,
+   headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+   },
    body: JSON.stringify(user),
   };
  } catch (error) {
   return {
    statusCode: 500,
+   headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+   },
    body: JSON.stringify({ message: 'Failed to get user' }),
   };
  }

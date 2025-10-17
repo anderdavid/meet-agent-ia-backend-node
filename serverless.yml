@@ -4,56 +4,41 @@ service: meet-agent-ia-node-back
 frameworkVersion: '4'
 
 provider:
- name: aws
- runtime: nodejs20.x
- region: us-east-1
- deploymentBucket:
-  name: meetai-deployment-${opt:stage, 'dev'}
- stage: ${opt:stage, 'dev'}
- http:
-  cors:
-   allowedOrigins:
-    - https://master.647838cc.amplifyapp.com
-    - http://localhost:3000
-   allowedHeaders:
-    - Content-Type
-    - Authorization
-    - Access-Control-Allow-Origin
-   allowedMethods:
-    - GET
-    - POST
-    - OPTIONS
-   allowCredentials: true
-  maxAge: 6000
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  deploymentBucket:
+    name: meetai-deployment-${opt:stage, 'dev'}
+  stage: ${opt:stage, 'dev'}
 
- environment:
-  USERS_TABLE: ${self:service}-${sls:stage}-user
-  MEETS_TABLE: ${self:service}-${sls:stage}-meet
-  JWT_SECRET: ${env:JWT_SECRET}
+  environment:
+    USERS_TABLE: ${self:service}-${sls:stage}-user
+    MEETS_TABLE: ${self:service}-${sls:stage}-meet
+    JWT_SECRET: ${env:JWT_SECRET}
 
- iam:
-  role:
-   statements:
-    - Effect: Allow
-      Action:
-       - dynamodb:Query
-       - dynamodb:Scan
-       - dynamodb:GetItem
-       - dynamodb:PutItem
-       - dynamodb:UpdateItem
-       - dynamodb:DeleteItem
-       - dynamodb:BatchWriteItem
-       - s3:*
-       - ssm:PutParameter
-       - ssm:GetParameter
-       - ssm:DeleteParameter
-      Resource:
-        - Fn::GetAtt: [UsersTable, Arn]
-        - Fn::GetAtt: [MeetsTable, Arn]
-        - '*'
+  iam:
+    role:
+      statements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          - dynamodb:DeleteItem
+          - dynamodb:BatchWriteItem
+          - s3:*
+          - ssm:PutParameter
+          - ssm:GetParameter
+          - ssm:DeleteParameter
+        Resource:
+          - Fn::GetAtt: [UsersTable, Arn]
+          - Fn::GetAtt: [MeetsTable, Arn]
+          - '*'
 
 functions:
-  verifyToken: 
+  verify-token: 
     handler: src/users/verifyToken.handler
 
   getUsers:
@@ -63,8 +48,10 @@ functions:
           path: /users
           method: get
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0 
 
   getUserId:
     handler: src/users/getUser.handler
@@ -72,9 +59,11 @@ functions:
       - http:
           path: /users/{id}
           method: get
-          #authorizer:
-            #name: verifyToken
-            #type: TOKEN
+          authorizer:
+            name: verify-token
+            type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
 
   createUser:
     handler: src/users/createUser.handler
@@ -83,9 +72,10 @@ functions:
           path: /users
           method: post
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
-
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
   UpdateUser:
     handler: src/users/updateUser.handler
     events:
@@ -93,8 +83,10 @@ functions:
           path: /users/{id}
           method: put
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
 
   DeleteUser:
     handler: src/users/deleteUser.handler
@@ -103,8 +95,10 @@ functions:
           path: /users/{id}
           method: delete
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
 
   Login:
     handler: src/users/login.handler
@@ -120,8 +114,10 @@ functions:
           path: /meets
           method: get
           authorizer:
-            name: verifyToken
-            type: TOKEN
+              name: verify-token
+              type: TOKEN
+              identitySource: method.request.header.Authorization
+              resultTtlInSeconds: 0
   getMeet:
     handler: src/meets/getMeet.handler
     events:
@@ -129,8 +125,10 @@ functions:
           path: /meets/{id}
           method: get
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
 
   CreateMeet:
     handler: src/meets/createMeet.handler
@@ -139,8 +137,10 @@ functions:
           path: /meet
           method: post
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
 
   UpdateMeet:
     handler: src/meets/updateMeet.handler
@@ -149,8 +149,10 @@ functions:
           path: /meets/{id}
           method: put
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
 
   DeleteMeet:
     handler: src/meets/deleteMeet.handler
@@ -159,8 +161,10 @@ functions:
           path: /meets/{id}
           method: delete
           authorizer:
-            name: verifyToken
+            name: verify-token
             type: TOKEN
+            identitySource: method.request.header.Authorization
+            resultTtlInSeconds: 0
 
 resources:
   Resources:

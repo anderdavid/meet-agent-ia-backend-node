@@ -30,12 +30,22 @@ export const handler = async (
 
   return {
    statusCode: 200,
+   headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+   },
    body: JSON.stringify(users),
   };
  } catch (error) {
   console.log('error: ', error);
   return {
    statusCode: 500,
+   headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+   },
    body: JSON.stringify({ message: 'Failed to scan users' }),
   };
  }
