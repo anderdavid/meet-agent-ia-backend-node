@@ -12,6 +12,7 @@ export const handler = async (
  if (!token || !event.methodArn) throw new Error('Unauthorized');
 
  const secret = process.env.JWT_SECRET;
+ console.log('secret', secret);
 
  if (!secret) throw new Error('Unauthorized');
 

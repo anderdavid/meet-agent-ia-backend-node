@@ -2,7 +2,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { getUserByEmail } from './utils/userByEmail';
-import { z } from 'zod';
+//import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -10,10 +10,10 @@ import jwt from 'jsonwebtoken';
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
-const userSchema = z.object({
+/* const userSchema = z.object({
  email: z.string().email('Debe ser un email válido'),
  password: z.string().min(8, 'Password es obligatorio'),
-});
+}); */
 
 interface User {
  login: string;
@@ -44,7 +44,7 @@ export const handler = async (
  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
  const body = JSON.parse(event.body || '{}');
- const validated = userSchema.parse(body);
+ //const validated = userSchema.parse(body);
 
  const { email, password } = body;
 
@@ -64,7 +64,7 @@ export const handler = async (
   };
  }
 
- console.log('user', user);
+ console.log('userfff', user);
  delete user.password;
  delete user.createdAt;
  delete user.updatedAt;

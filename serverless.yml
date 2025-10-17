@@ -72,9 +72,9 @@ functions:
       - http:
           path: /users/{id}
           method: get
-          authorizer:
-            name: verifyToken
-            type: TOKEN
+          #authorizer:
+            #name: verifyToken
+            #type: TOKEN
 
   createUser:
     handler: src/users/createUser.handler
