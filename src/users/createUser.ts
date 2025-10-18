@@ -40,9 +40,8 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
  try {
   const body = JSON.parse(event.body || '{}');
-  const validated = userSchema.parse(body);
-
   const { name, email, password, role } = body;
+  const validated = userSchema.parse(body);
 
   const existUser = await existUserByEmail(email);
   console.log('existUser', existUser);

@@ -9,6 +9,8 @@ const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
 export const getUserByEmail = async (email: string) => {
+ console.log('getUserByEmail####');
+ console.log('email', email);
  const command = new ScanCommand({
   TableName: process.env.USERS_TABLE,
   FilterExpression: '#email = :email',
@@ -22,9 +24,7 @@ export const getUserByEmail = async (email: string) => {
 
  try {
   const result = await docClient.send(command);
-  if (result.Count === 0) {
-   return false;
-  }
+  console.log('result', result);
   return result.Items;
  } catch (error) {
   console.log('error', null);

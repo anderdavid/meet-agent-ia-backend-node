@@ -8,10 +8,12 @@ export const handler = async (
  event: APIGatewayTokenAuthorizerEvent
 ): Promise<APIGatewayAuthorizerResult> => {
  const token = event.authorizationToken?.replace('Bearer ', '');
+ console.log('method arn', event.methodArn);
 
  if (!token || !event.methodArn) throw new Error('Unauthorized');
 
  const secret = process.env.JWT_SECRET;
+ console.log('secret', secret);
 
  if (!secret) throw new Error('Unauthorized');
 

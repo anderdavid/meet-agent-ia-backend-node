@@ -4,26 +4,21 @@ import { DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dynamodb';
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
-export const getUserId = async (id: string) => {
- console.log('idc: ', id);
-
+export const getMeetById = async (id: string) => {
  try {
   const command = new GetCommand({
-   TableName: process.env.USERS_TABLE,
+   TableName: process.env.MEETS_TABLE,
    Key: {
     id: id,
    },
   });
   const result = await docClient.send(command);
   console.log('result: ', result);
-  const user = result.Item;
-
-  if (!user) {
+  const meet = result.Item;
+  if (!meet) {
    return null;
   }
-
-  delete user.password;
-  return result.Item;
+  return meet;
  } catch (error) {
   console.log('error: ', error);
   return null;
