@@ -1,5 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { meetSchema } from './utils/meetsSchema';
 import { z } from 'zod';
@@ -36,25 +36,25 @@ export const handler = async (
    };
   }
 
-  const newMeet: MeetI = {
-   id: uuidv4(),
-   nameMeeting,
-   description,
-   userId,
-   createdAt: Date.now(),
-   updateAt: Date.now(),
-  };
-
-  const command = new PutCommand({
+  const command = new UpdateCommand({
    TableName: process.env.MEETS_TABLE,
-   Item: newMeet,
+   Key: { id },
+   UpdateExpression:
+    'SET nameMeeting = :name, description = :desc, userId = :userId, updateAt = :updateAt',
+   ExpressionAttributeValues: {
+    ':name': nameMeeting,
+    ':desc': description,
+    ':userId': userId,
+    ':updateAt': Date.now(),
+   },
+   ReturnValues: 'ALL_NEW',
   });
 
   await docClient.send(command);
 
   return {
    statusCode: 201,
-   body: JSON.stringify(newMeet),
+   body: JSON.stringify({ mesage: 'meet is update' }),
   };
  } catch (error) {
   if (error instanceof z.ZodError) {

@@ -1,6 +1,6 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { DynamoDBDocumentClient, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { getUserId } from './utils/getUserId';
 import { getUserByEmail } from './utils/userByEmail';
 import { ROLE_ADMIN, ROLE_USER } from '../utils/constants';
@@ -61,6 +61,8 @@ export const handler = async (
    mUser => mUser.email != user?.email
   );
 
+  console.log('othersUserWithThisEmail', othersUserWithThisEmail);
+
   if (othersUserWithThisEmail.length > 0) {
    return {
     statusCode: 400,
@@ -77,7 +79,7 @@ export const handler = async (
    };
   }
 
-  const newUser: User = {
+  /* const newUser: User = {
    id: user.id,
    name,
    email,
@@ -90,14 +92,35 @@ export const handler = async (
   const command = new PutCommand({
    TableName: process.env.USERS_TABLE,
    Item: newUser,
+  }); */
+
+  const command = new UpdateCommand({
+   TableName: process.env.USERS_TABLE,
+   Key: { id },
+   UpdateExpression:
+    'SET #name = :name, #email = :email, #role = :role, #updateAt = :updateAt',
+   ExpressionAttributeNames: {
+    '#name': 'name',
+    '#email': 'email',
+    '#role': 'role',
+    '#updateAt': 'updateAt',
+   },
+   ExpressionAttributeValues: {
+    ':name': name,
+    ':email': email,
+    ':role': role,
+    ':updateAt': Date.now(),
+   },
+   ReturnValues: 'ALL_NEW',
   });
 
   await docClient.send(command);
   return {
    statusCode: 201,
-   body: JSON.stringify(newUser),
+   body: JSON.stringify({ message: 'user id update' }),
   };
  } catch (error) {
+  console.log('error', error);
   if (error instanceof z.ZodError) {
    return {
     statusCode: 400,
