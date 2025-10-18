@@ -79,21 +79,6 @@ export const handler = async (
    };
   }
 
-  /* const newUser: User = {
-   id: user.id,
-   name,
-   email,
-   role,
-   password: user.password,
-   createdAt: user.createdAt,
-   updateAt: Date.now(),
-  };
-
-  const command = new PutCommand({
-   TableName: process.env.USERS_TABLE,
-   Item: newUser,
-  }); */
-
   const command = new UpdateCommand({
    TableName: process.env.USERS_TABLE,
    Key: { id },
