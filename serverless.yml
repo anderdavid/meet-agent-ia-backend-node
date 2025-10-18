@@ -15,6 +15,7 @@ provider:
     USERS_TABLE: ${self:service}-${sls:stage}-user
     MEETS_TABLE: ${self:service}-${sls:stage}-meet
     JWT_SECRET: ${env:JWT_SECRET}
+    BUCKET_NAME: meetingsai-bucket
 
   iam:
     role:
@@ -29,12 +30,14 @@ provider:
           - dynamodb:DeleteItem
           - dynamodb:BatchWriteItem
           - s3:*
+          - s3:PutObject
           - ssm:PutParameter
           - ssm:GetParameter
           - ssm:DeleteParameter
         Resource:
           - Fn::GetAtt: [UsersTable, Arn]
           - Fn::GetAtt: [MeetsTable, Arn]
+          - arn:aws:s3:::meetingsai-bucket/*
           - '*'
 
 functions:
@@ -168,6 +171,19 @@ functions:
 
 resources:
   Resources:
+    MeetingsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: meetingsai-bucket
+        VersioningConfiguration:
+          Status: Enabled
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: AES256
+        Tags:
+          - Key: Environment
+            Value: ${self:provider.stage}
     UsersTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
