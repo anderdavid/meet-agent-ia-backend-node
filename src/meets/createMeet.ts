@@ -38,13 +38,13 @@ export const handler = async (
    ContentType: contentType,
   });
 
-  const url = await getSignedUrl(s3, s3Command, { expiresIn: 60 });
+  const url = await getSignedUrl(s3, s3Command, { expiresIn: 300 });
 
   if (!url) {
    return {
     statusCode: 500,
     body: JSON.stringify({
-     message: 'Error creating presigned URL',
+     message: 'Error creatingg presigned URL',
     }),
    };
   }
